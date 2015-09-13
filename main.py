@@ -6,7 +6,6 @@
 #	python main.py -h
 ##############################################################################
 
-import math
 import argparse
 import time
 import pydoku
