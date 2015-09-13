@@ -1,23 +1,27 @@
 ##############################################################################
-# Pydoku Solver 
-# This Python script can solve Sudoku fields of any dimension and can find 
-# multiple solutions if the input field has them.
-# For usage, use the following command line:
-#	python pydoku.py -h
+# Pydoku module
 ##############################################################################
 
 import math
 import argparse
 import time
 
+
+
+
+
 class Solver:
-	def __init__(self):
+	def __init__(self, filepath, intensive, show_process):
+		# State data.
 		self.field_size = 0
 		self.block_size = 0
 		self.cell_options = set()
 		self.solutions = list(list())
-		self.intensive = False
-		self.show_process = False
+
+		# Settings.
+		self.filepath = filepath
+		self.intensive = intensive
+		self.show_process = show_process
 
 
 	# Attempts to load file inputFilePath and construct a Sudoku field from it.
@@ -204,57 +208,15 @@ class Solver:
 		return res
 
 
-	# The starting point of the algorithm. This functon simply starts visiting the cells in the field at cell [0, 0]
-	def solve(self, filepath, intensive, show_process):
-		field = self.loadInput(filepath)
+	# The starting point of the algorithm. This functon simply starts visiting the cells in the field at cell [0, 0].
+	# Returns True if one or more solutions were found, False otherwise.
+	def solve(self):
+		field = self.loadInput(self.filepath)
 
 		if field is None:
 			print "No valid sudoku field was generated from the input file."
-			return False
+			return
 
 		self.printField(field)
 
-		self.intensive = intensive
-		self.show_process = show_process
-		self.solutions = list(list())
-
-		print "Solve(intensive=%r)... (started @ %s)" % (self.intensive, time.strftime("%X %x"))
-
-		time_start = time.clock()
-
-		res = self.visitCell(field, 0, 0, 0)
-
-		time_end = time.clock()
-		print "...completed in %f seconds." % (time_end - time_start)
-
-		return res
-
-
-# The main function is not placed within the if __name__ == "__main__" construct because this allows us to easily exit the function with a return statement.
-def main():	
-	parser = argparse.ArgumentParser(description='Solve an unsolved Sudoku field.')
-	parser.add_argument("input", metavar="i", nargs=1, type=str, 
-	                   	help="Input file containing the input unsolved Sudoku field as (1 character per cell: '001320600...'. Line breaks are ignored. Whitespace or zeroes denote empty cells. Depending on the size of the sudoku field, the set of accepted characters for cells is [123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ]. A 9x9 field accepts characters [1..9], a 16x16 field accepts [1..G], etc.).")
-	parser.add_argument("--intensive", action="store_true", help="Perform an intensive solve and find all possible solutions to the input field.")
-	parser.add_argument("--show_process", action="store_true", help="Display log entries during solving to visualise the process.")
-
-	args = parser.parse_args()
-
-	solver = Solver()
-	solver.solve(args.input[0], args.intensive, args.show_process)
-
-	if len(solver.solutions) == 0:
-		print "No solution was found."
-	else:
-		if args.intensive:
-			print "Found %i solutions:" % len(solver.solutions)
-		for i in range(len(solver.solutions)):
-			if args.intensive:
-				print "           Solution %i:" % (i + 1)
-			print "               |\n               V\n"
-			solver.printField(solver.solutions[i])
-
-
-# Main
-if __name__ == "__main__":
-	main()
+		self.visitCell(field, 0, 0, 0)
