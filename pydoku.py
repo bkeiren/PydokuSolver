@@ -45,7 +45,7 @@ class Solver:
 		field_size_float = math.sqrt(len(sudoku))
 
 		if not field_size_float.is_integer():
-			print "Sudoku field is incorrectly formed with " + str(len(sudoku)) + " entries."
+			print "Sudoku field is incorrectly formed with $i entries." % len(sudoku)
 			return None
 
 		self.field_size = int(field_size_float)
@@ -79,9 +79,10 @@ class Solver:
 	# Get the indices of the cell that comes after cell [x, y]. If [x] is at the end of a row
 	# then y is incremented properly and x is set to 0.
 	def getNextIndices(self, x, y):
-		next_x = 0 if x == (self.field_size - 1) else x + 1
-		next_y = y if x < (self.field_size - 1) else y + 1
-		return next_x, next_y
+		if x >= self.field_size - 1:
+			return (0, y + 1)
+		else:
+			return (x + 1, y)
 
 
 	# Print a single formatted row of the field.
@@ -127,7 +128,7 @@ class Solver:
 	def getRemaining(self, field, x, y):
 		remaining = set(self.cell_options)
 
-		# Visit all cells in the same row and the same column and discard entries that have been filled in.
+		# Discard entries that already exist in the same row and column.
 		for i in range(self.field_size):
 			ver = self.getCell(field, x, i)
 			hor = self.getCell(field, i, y)
@@ -159,9 +160,10 @@ class Solver:
 		tmpField = list(field)
 
 		if x == 0 and y == self.field_size:
-			# We have found the solution (hopefully).
+			# We have found the solution.
+			self.printProcessLine(depth, "Found a solution")
 			self.solutions.append(list(tmpField))
-			return self.intensive
+			return True
 
 		self.printProcessLine(depth, "Visiting cell @ [%i, %i]" % (x + 1, y + 1))
 
@@ -183,15 +185,20 @@ class Solver:
 					self.printProcessLine(depth, "Next cell: [%i, %i]" % (next_idcs[0] + 1, next_idcs[1] + 1))
 
 					res = self.visitCell(tmpField, next_idcs[0], next_idcs[1], depth + 1)
-					if not res:
+
+					# If the current option resulted in a solution and we're not performing an intensive search, then 
+					# break out of the loop because we don't care about trying other options anymore.
+					if res and not self.intensive:
 						break
 			else:
 				self.printProcessLine(depth, "No options remaining")
+				res = False
 		else:
 			next_idcs = self.getNextIndices(x, y)
 			res = self.visitCell(tmpField, next_idcs[0], next_idcs[1], depth + 1)
 
-		self.printProcessLine(depth, "Going back")
+		if not res:
+			self.printProcessLine(depth, "Backtracking")
 
 		return res
 
@@ -208,3 +215,4 @@ class Solver:
 		self.printField(field)
 
 		self.visitCell(field, 0, 0, 0)
+

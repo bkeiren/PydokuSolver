@@ -26,7 +26,7 @@ def main():
 	solver = pydoku.Solver(args.input[0], args.intensive, args.show_process)
 
 	# Keep track of the start time.
-	print "Solve(intensive=%r)... (started @ %s)" % (solver.intensive, time.strftime("%X %x"))
+	print "Solve(intensive=%r)... (started @ %s)\n" % (solver.intensive, time.strftime("%X %x"))
 	time_start = time.clock()
 
 	# Perform our solve.
