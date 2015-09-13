@@ -145,18 +145,10 @@ class Solver:
 		return remaining
 
 
-	# Helper function that constructs an indentation string that indicates the current solve depth.
-	def getDepthPrefixStr(self, depth):
-		prefix = ""
-		for i in range(depth):
-			prefix = prefix + " "
-		return prefix
-
-
 	# Helper function to conditionally print a line to the console to indicate the current state of the solve function.
 	def printProcessLine(self, depth, line):
 		if self.show_process:
-			print self.getDepthPrefixStr(depth) + line;
+			print (" " * depth) + line;
 
 
 	# This function visits the cell at [x, y] and recurses as neccessary to the next cell.
